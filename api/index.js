@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const auth = require("../middlewares/auth");
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -39,6 +40,11 @@ router.post("/register", async (req, res) => {
   newUser.token = token;
   newUser.save();
   res.json({ email, role, token });
+});
+
+router.get("/auth", auth, (req, res) => {
+  const { email, token, role, permissions } = req.user;
+  res.json({ email, token, role, permissions });
 });
 
 module.exports = router;
