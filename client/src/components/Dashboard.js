@@ -5,11 +5,8 @@ import { Redirect, Link } from "react-router-dom";
 const Dashboard = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
 
-  const [showButtons, setShowButtons] = useState({
-    red: false,
-    green: false,
-  });
-
+  const [showRed, setShowRed] = useState(false);
+  const [showGreen, setShowGreen] = useState(false);
   const [error, setError] = useState(false);
 
   const showButton = async () => {
@@ -21,17 +18,19 @@ const Dashboard = () => {
       };
       const res = await axios(config);
       console.log(res.data.permissions);
-      res.data.permissions.forEach((value, index) => {
+      res.data.permissions.forEach(async (value, index) => {
         console.log("[index] " + index + " " + value);
         if (value === "AccessRedButton") {
-          setShowButtons({ ...showButtons, red: true });
+          setShowRed(true);
         }
 
         if (value === "AccessGreenButton") {
-          setShowButtons({ ...showButtons, green: true });
+          setShowGreen(true);
         }
       });
     } catch (err) {
+      console.log(err);
+      //localStorage.removeItem("token");
       setError(true);
     }
   };
@@ -40,12 +39,20 @@ const Dashboard = () => {
     showButton();
   }, []);
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    setError(true); // to redirect
+  };
+
   return (
     <Fragment>
       {error && <Redirect to="/" />}
-      {showButtons.green && <Link className="btn btn-success">Green</Link>}
-      {showButtons.red && <Link className="btn btn-danger">Red</Link>}
+      {showGreen && <Link className="btn btn-success">Green</Link>}
+      {showRed && <Link className="btn btn-danger">Red</Link>}
       <br />
+      <Link className="btn btn-primary" onClick={() => logout()}>
+        Logout
+      </Link>
     </Fragment>
   );
 };

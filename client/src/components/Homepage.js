@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
 
@@ -24,6 +24,16 @@ const Homepage = () => {
     setRegisterForm({ ...registerForm, [e.target.name]: e.target.value });
   };
 
+  const checkToken = () => {
+    if (localStorage.getItem("token")) {
+      setAuth(true);
+    }
+  };
+
+  useEffect(() => {
+    checkToken();
+  }, []);
+
   const onLoginSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -39,8 +49,21 @@ const Homepage = () => {
     }
   };
 
-  const onRegisterSubmit = (e) => {
+  const onRegisterSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const res = await axios.post("/api/register", {
+        email: registerForm.email,
+        password: registerForm.password,
+        role: registerForm.role,
+      });
+      const token = res.data.token;
+      localStorage.setItem("token", token);
+      setAuth(true);
+    } catch (err) {
+      console.log(err);
+      alert(err.response.data.msg);
+    }
   };
 
   return (
@@ -63,7 +86,7 @@ const Homepage = () => {
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input
-                type="text"
+                type="password"
                 name="password"
                 placeholder="Enter your password"
                 value={loginForm.password}
@@ -92,7 +115,7 @@ const Homepage = () => {
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input
-                type="text"
+                type="password"
                 name="password"
                 placeholder="Enter your password"
                 value={registerForm.password}

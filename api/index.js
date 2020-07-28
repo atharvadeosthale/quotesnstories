@@ -23,7 +23,7 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   const { email, password, role } = req.body;
   if (!email || !password || !role) {
-    res.status(400).json({ msg: "All fields are required!" });
+    return res.status(400).json({ msg: "All fields are required!" });
   }
   const userobj = await User.findOne({ email });
   if (userobj) {
